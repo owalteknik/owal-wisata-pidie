@@ -16,19 +16,24 @@
             background-color: #f8fafc;
             background-image: url("https://www.transparenttextures.com/patterns/cubes.png");
         }
+        .modal-enter { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body class="bg-pattern text-slate-900">
     <div id="root"></div>
 
     <script type="text/babel">
-        // Komponen Ikon SVG Inline untuk stabilitas maksimal
+        // --- Komponen Ikon SVG Inline (Stabil & Cepat) ---
         const MapPin = ({ className }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
         );
 
-        const Heart = ({ className }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        const Heart = ({ className, filled }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
         );
 
         const Navigation = ({ className }) => (
@@ -47,6 +52,10 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20M2 12h20"/></svg>
         );
 
+        const CloseIcon = ({ className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        );
+
         const Coffee = ({ className }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>
         );
@@ -63,14 +72,51 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="14" x="3" y="8" rx="2" ry="2"/><path d="M7 5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3H7Z"/><circle cx="12" cy="15" r="3"/></svg>
         );
 
+        // --- Komponen Modal ---
+        const Modal = ({ isOpen, onClose, destination }) => {
+            if (!isOpen) return null;
+            return (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm modal-enter" onClick={onClose}>
+                    <div className="bg-white rounded-[2.5rem] max-w-2xl w-full overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+                        <div className="relative h-64 md:h-80">
+                            <img src={destination.img} className="w-full h-full object-cover" alt={destination.name} />
+                            <button onClick={onClose} className="absolute top-4 right-4 bg-white/20 backdrop-blur-md p-2 rounded-full text-white hover:bg-white hover:text-slate-900 transition-all">
+                                <CloseIcon className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <div className="p-8 md:p-10">
+                            <div className="flex items-center gap-2 text-indigo-600 font-bold text-xs uppercase tracking-widest mb-4">
+                                <MapPin className="w-4 h-4" /> {destination.location}, Pidie
+                            </div>
+                            <h2 className="text-3xl md:text-4xl font-black mb-6 tracking-tight text-slate-900 uppercase">{destination.name}</h2>
+                            <p className="text-slate-600 text-lg leading-relaxed mb-8">{destination.fullContent}</p>
+                            <div className="flex gap-4">
+                                <button className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 uppercase text-xs tracking-widest">
+                                    Dapatkan Rute
+                                </button>
+                                <button onClick={onClose} className="px-8 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition-all uppercase text-xs tracking-widest">
+                                    Tutup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Komponen Utama App ---
         const App = () => {
+            const [selectedPlace, setSelectedPlace] = React.useState(null);
+            const [likes, setLikes] = React.useState({});
+
             const destinations = [
                 {
                     id: 1,
                     name: "Tui Jerenge",
                     category: "Alam",
                     location: "Padang Tiji",
-                    desc: "Objek wisata pemandian alam di pedalaman hutan Padang Tiji. Berjarak 30 menit dari Kota Sigli dan lokasinya tak jauh dari Waduk Rajui.",
+                    desc: "Objek wisata pemandian alam di pedalaman hutan Padang Tiji. Berjarak 30 menit dari Kota Sigli.",
+                    fullContent: "Kabupaten Pidie menyimpan banyak destinasi wisata yang luar biasa. Salah satunya adalah Tui Jerenge, objek wisata alam yang berada di Kecamatan Padang Tiji. Untuk menuju ke lokasi, pengunjung harus menempuh perjalanan selama 30 menit dari Kota Sigli. Sebelum sampai, Anda akan melewati Waduk Rajui yang letaknya tak jauh dari sini.",
                     img: "./wisata1.jpg" 
                 },
                 {
@@ -78,7 +124,8 @@
                     name: "Monumen Tsunami",
                     category: "Sejarah",
                     location: "Kuala Pidie",
-                    desc: "Situs sejarah di pusat kota Sigli yang merekam jejak tsunami 2004 lewat jepretan foto, bukti kekuatan Tuhan, dan lorong daftar nama para korban.",
+                    desc: "Situs sejarah di pusat kota Sigli yang merekam jejak tsunami 2004 lewat jepretan foto.",
+                    fullContent: "Berlokasi persis di pusat kota, tidak jauh dari alun-alun Kota Sigli. Di museum ini, kita bisa melihat lebih dekat jepretan foto sebelum dan sesudah tsunami menghantam ombak besar. Terdapat juga lorong yang tertulis nama-nama korban gempa dan tsunami sebagai bentuk penghormatan dan pengingat sejarah.",
                     img: "./wisata2.jpg" 
                 },
                 {
@@ -86,16 +133,23 @@
                     name: "Pantai Pelangi",
                     category: "Wisata Kota",
                     location: "Kota Sigli",
-                    desc: "Terletak di depan pendopo Bupati Pidie, menawarkan ragam kuliner melimpah, spot foto estetik, dan taman bermain yang menjadi favorit warga.",
+                    desc: "Terletak di depan pendopo Bupati Pidie, menawarkan ragam kuliner melimpah dan spot foto estetik.",
+                    fullContent: "Berada tepat di depan Pendopo Bupati Pidie. Pantai ini menawarkan berbagai ornamen dan spot foto yang menarik. Selain kuliner yang melimpah, tersedia juga taman bermain untuk anak-anak, menjadikannya tempat favorit nongkrong bagi anak muda dan keluarga untuk bercengkrama tanpa biaya besar.",
                     img: "./wisata3.jpg" 
                 }
             ];
 
+            const toggleLike = (id, e) => {
+                e.stopPropagation();
+                setLikes(prev => ({ ...prev, [id]: !prev[id] }));
+            };
+
             return (
                 <div className="min-h-screen flex flex-col">
+                    {/* Header Navigasi */}
                     <nav className="fixed top-0 w-full z-50 px-6 py-4">
                         <div className="max-w-6xl mx-auto bg-white/90 backdrop-blur-md rounded-3xl border border-slate-100 shadow-xl px-8 py-4 flex justify-between items-center">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 cursor-pointer hover:scale-105 transition-transform" onClick={() => window.scrollTo(0,0)}>
                                 <div className="bg-indigo-600 p-2 rounded-xl shadow-lg flex items-center justify-center">
                                     <Navigation className="text-white w-5 h-5" />
                                 </div>
@@ -109,17 +163,18 @@
                         </div>
                     </nav>
 
+                    {/* Hero Section */}
                     <header className="pt-40 pb-24 px-6">
                         <div className="max-w-6xl mx-auto text-center lg:text-left grid lg:grid-cols-2 gap-16 items-center">
-                            <div>
+                            <div className="order-2 lg:order-1">
                                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-8 border border-indigo-100">
                                     <Globe className="w-3 h-3" /> Pesona Tanah Pedir
                                 </div>
                                 <h1 className="text-6xl md:text-8xl font-extrabold text-slate-900 leading-[0.9] mb-10 tracking-tighter">
-                                    Warisan <br/><span className="text-indigo-600">Aceh Mulia.</span>
+                                    Warisan <br/><span className="text-indigo-600 underline decoration-wavy decoration-indigo-200">Aceh Mulia.</span>
                                 </h1>
                                 <p className="text-slate-500 text-lg md:text-xl leading-relaxed mb-12 max-w-lg">
-                                    Temukan ketenangan di pedalaman hutan Padang Tiji hingga kehangatan senja di pesisir Pantai Pelangi Sigli.
+                                    Ketuk salah satu destinasi di bawah untuk melihat keajaiban tersembunyi Kabupaten Pidie.
                                 </p>
                                 <div className="flex flex-wrap justify-center lg:justify-start gap-4">
                                     <a href="#galeri" className="bg-indigo-600 text-white px-10 py-5 rounded-[2rem] font-bold flex items-center gap-3 hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-200 group">
@@ -127,9 +182,9 @@
                                     </a>
                                 </div>
                             </div>
-                            <div className="relative">
+                            <div className="order-1 lg:order-2 relative group cursor-pointer" onClick={() => setSelectedPlace(destinations[2])}>
                                 <div className="absolute -inset-4 bg-indigo-100 rounded-[4rem] rotate-6 opacity-30 animate-pulse"></div>
-                                <div className="relative rounded-[3.5rem] overflow-hidden shadow-2xl border-8 border-white aspect-[4/5] bg-slate-200">
+                                <div className="relative rounded-[3.5rem] overflow-hidden shadow-2xl border-8 border-white aspect-[4/5] bg-slate-200 transform group-hover:scale-[1.02] transition-transform duration-500">
                                     <img 
                                         src="./wisata3.jpg" 
                                         className="w-full h-full object-cover" 
@@ -146,17 +201,22 @@
                         </div>
                     </header>
 
+                    {/* Galeri Wisata */}
                     <section id="galeri" className="py-32 px-6 bg-white">
                         <div className="max-w-6xl mx-auto">
                             <div className="flex flex-col items-center text-center mb-24">
-                                <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight uppercase text-center">Destinasi Utama</h2>
-                                <div className="h-1.5 w-24 bg-indigo-600 rounded-full mb-8 mx-auto"></div>
-                                <p className="text-slate-500 max-w-xl text-lg mx-auto">Jelajahi bukti sejarah dan keindahan alam Kabupaten Pidie yang luar biasa.</p>
+                                <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight uppercase">Destinasi Utama</h2>
+                                <div className="h-1.5 w-24 bg-indigo-600 rounded-full mb-8"></div>
+                                <p className="text-slate-500 max-w-xl text-lg">Pilih dan klik gambar untuk membaca cerita lengkapnya.</p>
                             </div>
 
                             <div className="grid md:grid-cols-3 gap-12">
                                 {destinations.map((item) => (
-                                    <div key={item.id} className="group bg-slate-50 rounded-[3rem] overflow-hidden border border-slate-100 transition-all duration-700 hover:shadow-2xl hover:shadow-indigo-100 hover:-translate-y-4">
+                                    <div 
+                                        key={item.id} 
+                                        onClick={() => setSelectedPlace(item)}
+                                        className="group bg-slate-50 rounded-[3rem] overflow-hidden border border-slate-100 transition-all duration-700 hover:shadow-2xl hover:shadow-indigo-100 hover:-translate-y-4 cursor-pointer"
+                                    >
                                         <div className="relative h-72 overflow-hidden">
                                             <img 
                                                 src={item.img} 
@@ -165,10 +225,16 @@
                                                 onError={(e) => e.target.src = "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=600"}
                                             />
                                             <div className="absolute top-6 left-6">
-                                                <span className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl text-[10px] font-black text-indigo-600 uppercase tracking-widest border border-white/50">
+                                                <span className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl text-[10px] font-black text-indigo-600 uppercase tracking-widest border border-white/50 shadow-sm">
                                                     {item.category}
                                                 </span>
                                             </div>
+                                            <button 
+                                                onClick={(e) => toggleLike(item.id, e)}
+                                                className={`absolute top-6 right-6 p-3 rounded-2xl backdrop-blur-md transition-all ${likes[item.id] ? 'bg-red-500 text-white' : 'bg-white/20 text-white hover:bg-white hover:text-red-500'}`}
+                                            >
+                                                <Heart className="w-5 h-5" filled={likes[item.id]} />
+                                            </button>
                                         </div>
                                         <div className="p-10">
                                             <div className="flex items-center gap-2 text-indigo-600 font-bold text-[10px] uppercase tracking-widest mb-4">
@@ -176,9 +242,9 @@
                                             </div>
                                             <h4 className="text-2xl font-black mb-4 text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors uppercase text-left">{item.name}</h4>
                                             <p className="text-slate-500 leading-relaxed text-sm mb-8 italic text-left">"{item.desc}"</p>
-                                            <button className="w-full py-4 bg-white border border-slate-200 rounded-2xl font-bold text-slate-400 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all flex items-center justify-center gap-2 uppercase text-xs tracking-widest">
-                                                Selengkapnya <ChevronRight className="w-4 h-4" />
-                                            </button>
+                                            <div className="w-full py-4 bg-white border border-slate-200 rounded-2xl font-bold text-slate-400 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all flex items-center justify-center gap-2 uppercase text-xs tracking-widest">
+                                                Klik Untuk Detail <ChevronRight className="w-4 h-4" />
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -186,6 +252,7 @@
                         </div>
                     </section>
 
+                    {/* Footer / Profil Pengembang */}
                     <footer id="profile" className="py-32 bg-slate-900 text-white mt-auto">
                         <div className="max-w-6xl mx-auto px-6 text-center">
                             <div className="flex flex-col items-center">
@@ -196,20 +263,20 @@
                                 <p className="text-indigo-400 font-bold tracking-[0.4em] uppercase text-xs mb-12">NPM: 23105111113</p>
                                 
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-2xl mb-16 mx-auto">
-                                    <div className="p-6 bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 transition-all">
-                                        <History className="w-6 h-6 text-indigo-400 mx-auto mb-3" />
+                                    <div className="p-6 bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 transition-all group cursor-pointer">
+                                        <History className="w-6 h-6 text-indigo-400 mx-auto mb-3 group-hover:scale-110 transition-transform" />
                                         <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Sejarah</p>
                                     </div>
-                                    <div className="p-6 bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 transition-all">
-                                        <Waves className="w-6 h-6 text-indigo-400 mx-auto mb-3" />
+                                    <div className="p-6 bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 transition-all group cursor-pointer">
+                                        <Waves className="w-6 h-6 text-indigo-400 mx-auto mb-3 group-hover:scale-110 transition-transform" />
                                         <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Wisata</p>
                                     </div>
-                                    <div className="p-6 bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 transition-all">
-                                        <Coffee className="w-6 h-6 text-indigo-400 mx-auto mb-3" />
+                                    <div className="p-6 bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 transition-all group cursor-pointer">
+                                        <Coffee className="w-6 h-6 text-indigo-400 mx-auto mb-3 group-hover:scale-110 transition-transform" />
                                         <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Kuliner</p>
                                     </div>
-                                    <div className="p-6 bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 transition-all">
-                                        <Camera className="w-6 h-6 text-indigo-400 mx-auto mb-3" />
+                                    <div className="p-6 bg-white/5 rounded-3xl border border-white/10 hover:bg-white/10 transition-all group cursor-pointer">
+                                        <Camera className="w-6 h-6 text-indigo-400 mx-auto mb-3 group-hover:scale-110 transition-transform" />
                                         <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Foto</p>
                                     </div>
                                 </div>
@@ -217,14 +284,21 @@
                                 <div className="h-px w-full bg-white/10 mb-12"></div>
                                 
                                 <div className="flex flex-col md:flex-row justify-between items-center w-full gap-8 text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500">
-                                    <span>© 2024 Explore Pidie Digital</span>
+                                    <span>© 2026 Explore Pidie Digital</span>
                                     <div className="flex items-center gap-2">
-                                        Dibuat dengan <Heart className="w-3 h-3 fill-red-500 text-red-500 inline-block" /> untuk Pidie, Aceh
+                                        Dibuat dengan <Heart className="w-3 h-3 fill-red-500 text-red-500 inline-block animate-pulse" filled={true} /> untuk Pidie, Aceh
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </footer>
+
+                    {/* Component Modal */}
+                    <Modal 
+                        isOpen={!!selectedPlace} 
+                        onClose={() => setSelectedPlace(null)} 
+                        destination={selectedPlace || {}} 
+                    />
                 </div>
             );
         };
